@@ -25,7 +25,6 @@ enum custom_keycodes {
   ADJUST,
 };
 
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* QWERTY
@@ -55,23 +54,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  | F10  | F11  | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |   `  |      |   7  |   8  |  9   |      |                    | PGUP |      |  UP  |      |      |      |
+ * |      |      |      |   7  |   8  |  9   |                    | PGUP |      |  UP  |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |   4  |   5  |  6   |      |-------.    ,-------| PGDN | Left | DOWN |Right |      |      |
+ * |      |      |      |   4  |   5  |  6   |-------.    ,-------| PGDN | Left | DOWN |Right |      |      |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
- * |      |      |   1  |   2  |  3   |      |-------|    |-------|   -  |   +  |   =  |   \  |   |  |      |
+ * |      |      |      |   1  |   2  |  3   |-------|    |-------|   -  |   +  |   =  |   \  |   |  |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   |   0  |      |      | /       /       \      \  |      |      |      |
+ *                   |      |   0  |  .   | /       /       \      \  |      |      |      |
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
  */
 
   [_RAISE] = LAYOUT( \
-  KC_F1,     KC_F2,    KC_F3,  KC_F4,   KC_F5,   KC_F6,                        KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
-  KC_GRV,  _______,     KC_7,   KC_8,    KC_9, _______,                      KC_PGUP, _______,   KC_UP, _______, _______, _______, \
-  _______, _______,     KC_4,   KC_5,    KC_6, _______,                      KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
-  _______, _______,     KC_1,   KC_2,    KC_3, _______,  _______, _______,   KC_MINS, KC_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
-                                KC_0, _______, _______,  _______, _______,  _______, _______, _______ \
+  KC_F1,     KC_F2,    KC_F3, KC_F4,   KC_F5,  KC_F6,                        KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
+  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      KC_PGUP, _______,   KC_UP, _______, _______, _______, \
+  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
+  _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   KC_MINS, KC_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
+                            _______,   KC_0,  KC_DOT,  _______, _______,  _______, _______, _______ \
   ),
 
 /* ADJUST
@@ -180,10 +179,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) { /* First encoder */
         if (clockwise) {
-            tap_code(KC_VOLU);
+            // Arrow down on raise, otherwise volume up.
+            if (layer_state_is(_RAISE)) {
+                tap_code(KC_DOWN);
+            } else {
+                tap_code(KC_VOLU);
+            }
         } else {
-            tap_code(KC_VOLD);
+            // Arrow up on raise, otherwise volume down.
+            if (layer_state_is(_RAISE)) {
+                tap_code(KC_UP);
+            } else {
+                tap_code(KC_VOLD);
+            }
         }
+
     }
 }
 #endif
