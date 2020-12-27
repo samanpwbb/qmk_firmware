@@ -16,8 +16,8 @@ extern rgblight_config_t rgblight_config;
 extern uint8_t is_master;
 
 #define _QWERTY 0
-#define _ADJUST 1
-#define _RAISE 2
+#define _RAISE 1
+#define _ADJUST 2
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
