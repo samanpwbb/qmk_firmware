@@ -8,21 +8,73 @@
   #include "ssd1306.h"
 #endif
 
-#ifdef RGBLIGHT_ENABLE
-//Following line allows macro to read current RGB settings
-extern rgblight_config_t rgblight_config;
-#endif
 
 extern uint8_t is_master;
 
 #define _QWERTY 0
 #define _RAISE 1
-#define _ADJUST 2
+#define _EMOJI 2
 
 enum custom_keycodes {
   QWERTY = SAFE_RANGE,
   RAISE,
-  ADJUST,
+  EMOJI,
+};
+
+enum unicode_name {
+  TADA,
+  HEART,
+  COOL,
+  MOON,
+  SHRUG,
+  SKULL,
+  JOY,
+  SMILE,
+  OKAY,
+  THINK,
+  NEUT,
+  GRIM,
+  PTUP,
+  PTLEFT,
+  PTDOWN,
+  PTRIGHT,
+  FIRST,
+  CHECK,
+  NOPE,
+  THMUP,
+  THMDN,
+  PRAY,
+  WAVE,
+  PEACE,
+  HUG,
+};
+
+const uint32_t PROGMEM unicode_map[] = {
+  [TADA] = 0x1F389, // 🎉
+  [HEART] = 0x1F5A4, // 🖤
+  [COOL] = 0x1F192, // 🆒
+  [MOON] = 0x1F31D, // 🌝
+  [SHRUG] = 0x1F937, // 🤷‍♂️
+  [SKULL] = 0x2620, // ☠️
+  [JOY] = 0x1F602, // 😂
+  [SMILE] = 0x1F603, // 😃
+  [OKAY] = 0x1F642, // 🙂
+  [THINK] = 0x1F914, // 🤔
+  [NEUT] = 0x1F611, // 😐
+  [GRIM] = 0x1F62C, // 😬
+  [PTUP] = 0x261D, // ☝️
+  [PTLEFT] = 0x1F448, // 👈
+  [PTDOWN] = 0x1F447, // 👇
+  [PTRIGHT] = 0x1F449, // 👉
+  [FIRST] = 0x1F947, // 🥇
+  [CHECK] = 0x2705, // ✅
+  [NOPE] = 0x274C, // ❌
+  [THMUP] = 0x1F44D, // 👍
+  [THMDN] = 0x1F44E, // 👎
+  [PRAY] = 0x1F64F, // 🙏
+  [WAVE] = 0x1F44B, // 👋
+  [PEACE] = 0x270C, // ✌️
+  [HUG] = 0x1F917 // 🫂
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -37,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------| MUTE  |    |BackSP |------+------+------+------+------+------|
  * |LShift|   Z  |   X  |   C  |   V  |   B  |-------|    |-------|   N  |   M  |   ,  |   .  |   /  |Enter |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   |ADJUST| LAlt | LGUI | /Space  /       \Space \  |RAISE |   [  |   ]  |
+ *                   |EMOJI | LAlt | LGUI | /Space  /       \Space \  |RAISE |   [  |   ]  |
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
  */
@@ -47,80 +99,61 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
   KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MUTE,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_ENT, \
-                            ADJUST, KC_LALT, KC_LGUI, KC_SPC,   KC_SPC,   RAISE,   KC_LBRC, KC_RBRC \
+                            EMOJI, KC_LALT, KC_LGUI, KC_SPC,   KC_SPC,   RAISE,   KC_LBRC, KC_RBRC \
   ),
 
 /* RAISE
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  | F10  | F11  | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |   7  |   8  |  9   |                    | PGUP |      |  UP  |      |  [   |  ]   |
+ * |      |      |      |   7  |   8  |  9   |                    |      |  UP  |      |  [   |  ]   |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |   4  |   5  |  6   |-------.    ,-------| PGDN | Left | DOWN |Right |  {   |  }   |
+ * |      |      |      |   4  |   5  |  6   |-------.    ,-------| Left | DOWN |Right |  {   |  }   |      |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
- * |      |      |      |   1  |   2  |  3   |-------|    |-------|   -  |   +  |   =  |   \  |   |  |      |
+ * |      |      |      |   1  |   2  |  3   |-------|    |-------|      |   +  |   =  |   \  |   |  |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   |      |   0  |  .   | /       /       \      \  |      |      |      |
+ *                   |   0  |      |      | /       /       \      \  |      |      |      |
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
  */
 
   [_RAISE] = LAYOUT( \
   KC_F1,     KC_F2,    KC_F3, KC_F4,   KC_F5,  KC_F6,                        KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
-  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      KC_PGUP, _______,   KC_UP, _______, KC_LBRC, KC_RBRC, \
-  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, KC_LCBR, KC_RCBR, \
-  _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   KC_MINS, KC_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
-                            _______,   KC_0,  KC_DOT,  _______, _______,  _______, _______, _______ \
+  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      _______,   KC_UP, _______, KC_LBRC, KC_RBRC, _______, \
+  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      KC_LEFT, KC_DOWN, KC_RGHT, KC_LCBR, KC_RCBR, _______, \
+  _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   _______, KC_KP_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
+                               KC_0,_______, _______,  _______, _______,  _______, _______, _______ \
   ),
 
-/* ADJUST
+  /* EMOJI
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * |      |      |      |      |      |      |                    |      |RGBTST|XMAS  |SNAKE |RAINBW|PLAIN |
+ * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |                    |      |      |GRADE |KNIGHT|SWIRL |BREATH|
+ * |      |      |      |      |      |      |                    |      |   ☝️  |     |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------.    ,-------|      |      |RGB ON| HUE+ | SAT+ | VAL+ |
+ * |   🎉 |   🖤  |  🆒  |  🌝  |  🤷‍♂️  |  ☠️  |-------.    ,-------|   👈  |  👇  |  👉  |  🥇  |   ✅  |  ❌  |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------|    |-------|      |      | MODE | HUE- | SAT- | VAL- |
+ * |  😂  |   😃  |  🙂  |  🤔  |  😐  |  😬  |-------|    |-------|  👍   |  👎  |  🙏  |  👋  |  ✌️   |  🫂  |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *                   |      |      |      | /       /       \      \  |      |      |      |
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
  */
-  [_ADJUST] = LAYOUT( \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, RGB_M_T, RGB_M_X, RGB_M_SN, RGB_M_R, RGB_M_P, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, RGB_M_G, RGB_M_K, RGB_M_SW, RGB_M_B, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, \
-                             _______, _______, _______, _______, _______,  _______, _______, _______ \
+  [_EMOJI] = LAYOUT( \
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______, \
+  _______, _______, _______, _______, _______, _______,                     _______, X(PTUP), _______, _______, _______, _______, \
+  X(TADA), X(HEART), X(COOL),X(MOON),X(SHRUG), X(SKULL),                     X(PTLEFT), X(PTDOWN), X(PTRIGHT), X(FIRST), X(CHECK), X(NOPE), \
+  X(JOY), X(SMILE), X(OKAY), X(THINK), X(NEUT), X(GRIM),  _______, _______,  X(THMUP), X(THMDN), X(PRAY), X(WAVE), X(PEACE), X(HUG), \
+                             _______, _______, _______,  _______, _______,  _______, _______, _______ \
   )
 };
-
-int RGB_current_mode;
-
-void matrix_init_user(void) {
-    #ifdef RGBLIGHT_ENABLE
-      RGB_current_mode = rgblight_config.mode;
-    #endif
-}
-
-//SSD1306 OLED update loop, make sure to enable OLED_DRIVER_ENABLE=yes in rules.mk
-#ifdef OLED_DRIVER_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   return rotation;
 }
 
-// When you add source files to SRC in rules.mk, you can use functions.
-const char *read_layer_state(void);
-void set_keylog(uint16_t keycode, keyrecord_t *record);
-const char *read_keylog(void);
-const char *read_keylogs(void);
-
 static void render_logo(void) {
   static const char PROGMEM my_logo[] = {
-// 'lily58', 32x128px
-// 'lily58', 128x32px
 0x00, 0x7c, 0x82, 0x3e, 0xc2, 0x04, 0x08, 0x10, 0x60, 0xa0, 0x22, 0x24, 0x20, 0x20, 0x20, 0x20,
 0x24, 0x24, 0x24, 0x22, 0x20, 0xe0, 0x20, 0x20, 0xe0, 0x22, 0x24, 0x22, 0x20, 0x20, 0x20, 0x20,
 0x20, 0x22, 0x24, 0x24, 0x24, 0xa0, 0x40, 0x40, 0x40, 0x44, 0x48, 0x50, 0x40, 0x40, 0x40, 0x44,
@@ -158,42 +191,34 @@ static void render_logo(void) {
   oled_write_raw_P(my_logo, sizeof(my_logo));
 }
 
-// const char *read_mode_icon(bool swap);
-// const char *read_host_led_state(void);
-// void set_timelog(void);
-// const char *read_timelog(void);
-
 void oled_task_user(void) {
+  // todo: something fancier with the oled's
   if (is_keyboard_master()) {
-          render_logo();
-
-    // If you want to change the display of OLED, you need to change here
-    // oled_write_ln(read_layer_state(), false);
-    // oled_write_ln(read_keylog(), false);
-    // oled_write_ln(read_keylogs(), false);
-
-
-    //oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
-    //oled_write_ln(read_host_led_state(), false);
-    //oled_write_ln(read_timelog(), false);
+    render_logo();
   } else {
     render_logo();
   }
 }
-#endif // OLED_DRIVER_ENABLE
+
+void matrix_init_user(void) {
+    wait_ms(500); // give time for usb to initialize. Not sure this is needed?
+    set_unicode_input_mode(UC_MAC);
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (record->event.pressed) {
-#ifdef OLED_DRIVER_ENABLE
-    set_keylog(keycode, record);
-#endif
-    // set_timelog();
-  }
 
   switch (keycode) {
     case QWERTY:
       if (record->event.pressed) {
         set_single_persistent_default_layer(_QWERTY);
+      }
+      return false;
+      break;
+    case EMOJI:
+      if (record->event.pressed) {
+        layer_on(_EMOJI);
+      } else {
+        layer_off(_EMOJI);
       }
       return false;
       break;
@@ -205,25 +230,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-    case ADJUST:
-        if (record->event.pressed) {
-          layer_on(_ADJUST);
-        } else {
-          layer_off(_ADJUST);
-        }
-        return false;
-        break;
   }
   return true;
 }
 
-#ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) { /* First encoder */
         if (clockwise) {
             // Arrow down on raise, otherwise volume up.
             if (layer_state_is(_RAISE)) {
                 tap_code(KC_PGDN);
+            } else if (layer_state_is(_EMOJI)) {
+                tap_code(KC_KP_PLUS);
             } else {
                 tap_code(KC_VOLU);
             }
@@ -231,11 +249,11 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             // Arrow up on raise, otherwise volume down.
             if (layer_state_is(_RAISE)) {
                 tap_code(KC_PGUP);
+            } else if (layer_state_is(_EMOJI)) {
+                tap_code(KC_MINS);
             } else {
                 tap_code(KC_VOLD);
             }
         }
-
     }
 }
-#endif
