@@ -24,21 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define USE_SERIAL_PD2
 #define TAPPING_FORCE_HOLD
 #define TAPPING_TERM 100
-
-// Underglow
-#undef RGBLED_NUM
-#ifdef RGBLIGHT_ENABLE
-  #define RGBLED_NUM 16
-  #define RGBLED_SPLIT {8,8}
-  #define RGBLIGHT_ANIMATIONS
-  #define RGBLIGHT_SLEEP
-#endif 
+#define UNICODE_KEY_MAC KC_RALT
 
 // Encoder
-#ifdef ENCODER_ENABLE 
+#ifdef ENCODER_ENABLE
   #define ENCODERS_PAD_A { F5 }
   #define ENCODERS_PAD_B { F4 }
-  
+
   // Enable if encoder is on the left side
   // #define ENCODER_DIRECTION_FLIP
 #endif
