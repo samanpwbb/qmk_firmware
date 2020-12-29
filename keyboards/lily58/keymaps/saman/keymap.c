@@ -106,9 +106,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  | F10  | F11  | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |   7  |   8  |  9   |                    |      |  UP  |      |  [   |  ]   |      |
+ * |      |      |      |   7  |   8  |  9   |                    |      |      |  UP  |  [   |  ]   |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |   4  |   5  |  6   |-------.    ,-------| Left | DOWN |Right |  {   |  }   |      |
+ * |      |      |      |   4  |   5  |  6   |-------.    ,-------|      | Left | DOWN |Right |      |      |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
  * |      |      |      |   1  |   2  |  3   |-------|    |-------|      |   +  |   =  |   \  |   |  |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
@@ -118,9 +118,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 
   [_RAISE] = LAYOUT( \
-  KC_F1,     KC_F2,    KC_F3, KC_F4,   KC_F5,  KC_F6,                        KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
-  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      _______,   KC_UP, _______, KC_LBRC, KC_RBRC, _______, \
-  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      KC_LEFT, KC_DOWN, KC_RGHT, KC_LCBR, KC_RCBR, _______, \
+  KC_F1,     KC_F2,    KC_F3, KC_F4,   KC_F5,  KC_F6,                        KC_F7,      KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
+  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      _______,    _______,   KC_UP, KC_LBRC, KC_RBRC, _______, \
+  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      _______,    KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
   _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   _______, KC_KP_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
                                KC_0,_______, _______,  _______, _______,  _______, _______, _______ \
   ),
@@ -192,7 +192,8 @@ static void render_logo(void) {
 }
 
 void oled_task_user(void) {
-  // todo: something fancier with the oled's
+  // Todo: something fancier with the oled's
+  // - Randomly pick from a selection of images?
   if (is_keyboard_master()) {
     render_logo();
   } else {
