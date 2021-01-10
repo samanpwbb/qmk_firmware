@@ -89,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------| MUTE  |    |BackSP |------+------+------+------+------+------|
  * |LShift|   Z  |   X  |   C  |   V  |   B  |-------|    |-------|   N  |   M  |   ,  |   .  |   /  |Enter |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
- *                   |EMOJI | LAlt | LGUI | /Space  /       \Space \  |RAISE |   [  |   ]  |
+ *                   |   =  | LAlt | LGUI | /Space  /       \Space \  |RAISE |   [  |   ]  |
  *                   |      |      |      |/       /         \      \ |      |      |      |
  *                   `----------------------------'           '------''--------------------'
  */
@@ -99,18 +99,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
   KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MUTE,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_ENT, \
-                            EMOJI, KC_LALT, KC_LGUI, KC_SPC,   KC_SPC,   RAISE,   KC_LBRC, KC_RBRC \
+                           KC_EQL, KC_LALT, KC_LGUI, KC_SPC,   KC_SPC,   RAISE,   KC_LBRC, KC_RBRC \
   ),
 
 /* RAISE
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  | F10  | F11  | F12  |
+ * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |      |  =   |  \   |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |   7  |   8  |  9   |                    |      |      |  UP  |  [   |  ]   |      |
+ * |      |      |      |   7  |   8  |  9   |                    |   {  |  }   |  UP  |  [   |  ]   |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      |      |      |   4  |   5  |  6   |-------.    ,-------|      | Left | DOWN |Right |      |      |
  * |------+------+------+------+------+------|       |    |       |------+------+------+------+------+------|
- * |      |      |      |   1  |   2  |  3   |-------|    |-------|      |   +  |   =  |   \  |   |  |      |
+ * |      |      |      |   1  |   2  |  3   |-------|    |-------|      |      |      |      |      |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *                   |   0  |      |      | /       /       \      \  |      |      |      |
  *                   |      |      |      |/       /         \      \ |      |      |      |
@@ -118,14 +118,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 
   [_RAISE] = LAYOUT( \
-  KC_F1,     KC_F2,    KC_F3, KC_F4,   KC_F5,  KC_F6,                        KC_F7,      KC_F8,   KC_F9,  KC_F10,  KC_F11,  KC_F12, \
-  _______, _______, _______,   KC_7,   KC_8,    KC_9,                      _______,    _______,   KC_UP, KC_LBRC, KC_RBRC, _______, \
-  _______, _______, _______,   KC_4,   KC_5,    KC_6,                      _______,    KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
-  _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   _______, KC_KP_PLUS,  KC_EQL, KC_BSLS, KC_PIPE, _______, \
+    KC_F1,   KC_F2,   KC_F3,  KC_F4,  KC_F5,   KC_F6,                        KC_F7,   KC_F8, _______,  KC_EQL, KC_BSLS, _______, \
+    KC_F9,  KC_F10,  KC_F11,   KC_7,   KC_8,    KC_9,                      KC_LCBR, KC_RCBR,   KC_UP, KC_LBRC, KC_RBRC, _______, \
+   KC_F12, _______, _______,   KC_4,   KC_5,    KC_6,                      _______, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, \
+  _______, _______, _______,   KC_1,   KC_2,    KC_3,  _______, _______,   _______, _______, _______, _______, _______,  _______, \
                                KC_0,_______, _______,  _______, _______,  _______, _______, _______ \
   ),
 
   /* EMOJI
+ *
+ * NOTE: Not in use since unicode input doesn't work without changing keyboard
+ * to "unicode hex input", but that disables left ALT, so it's not an option
+ * since I use left ALT all the time.
+ *
+ * Input key for unicode hex input is supposedly customizable, but doesn't seem
+ * to actually work, at least as described here:
+ * https://beta.docs.qmk.fm/using-qmk/software-features/feature_unicode#input-key-configuration
+ *
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -242,7 +251,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             if (layer_state_is(_RAISE)) {
                 tap_code(KC_PGDN);
             } else if (layer_state_is(_EMOJI)) {
-                tap_code(KC_KP_PLUS);
+                tap_code16(LGUI(KC_KP_PLUS));
             } else {
                 tap_code(KC_VOLU);
             }
@@ -251,7 +260,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
             if (layer_state_is(_RAISE)) {
                 tap_code(KC_PGUP);
             } else if (layer_state_is(_EMOJI)) {
-                tap_code(KC_MINS);
+                tap_code16(LGUI(KC_MINS));
             } else {
                 tap_code(KC_VOLD);
             }
